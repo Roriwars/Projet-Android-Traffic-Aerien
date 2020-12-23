@@ -2,6 +2,8 @@ package com.example.trafficaerien
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
@@ -9,7 +11,10 @@ import org.apache.commons.io.IOUtils
 import org.json.JSONArray
 import java.io.*
 import java.nio.charset.Charset
-
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.logging.Handler
+import kotlin.collections.ArrayList
 
 
 /**
@@ -22,7 +27,16 @@ class Utils private constructor() {
 
     companion object {
 
-        fun generateAirportList(): List<Airport>{
+        var liveData = MutableLiveData<String>()
+
+        fun updateLiveData(value: String) {
+            android.os.Handler().postDelayed(Runnable {
+                Log.d("MAIN", "update of the value")
+                liveData.value = value
+            }, 2000)
+        }
+
+        fun generateAirportList(): List<Airport> {
             val airportList = ArrayList<Airport>()
 
             for (airportObject in getAirportsListJson()) {
@@ -32,7 +46,7 @@ class Utils private constructor() {
             return airportList
         }
 
-        fun getAirportsListJson() : JsonArray{
+        fun getAirportsListJson(): JsonArray {
             var input: InputStream? = null
             input = FlightApplication.appAssetManager.open("airports.json")
             val parser = JsonParser()
@@ -99,6 +113,20 @@ class Utils private constructor() {
             }
         }
 
+        fun getFlightListFromString(arrayAsString: String): List<FlightModel>{
+            val flightJsonArray = convertStringToJsonArray(arrayAsString)
+            val flightModelList = ArrayList<FlightModel>()
+            for(flightJson in flightJsonArray){
+                flightModelList.add(Gson().fromJson(flightJson.asJsonObject, FlightModel::class.java))
+            }
+            return flightModelList
+        }
+
+        private fun convertStringToJsonArray(arrayAsString: String): JsonArray{
+            val jsonElement = JsonParser.parseString(arrayAsString)
+            return jsonElement.asJsonArray
+        }
+
         fun _makeJsonAirportLight() {
             var input: InputStream? = null
 
@@ -115,6 +143,76 @@ class Utils private constructor() {
             }
 
             _saveData(filteredAirports.toString().toByteArray(), "tempJson")
+        }
+
+        fun getDateHourFormat(): SimpleDateFormat {
+            val format = "dd/MM/yy HH:mm"
+            return SimpleDateFormat(format, Locale.US)
+        }
+
+        fun getHourMinuteFormat(): SimpleDateFormat {
+            val format = "HH:mm"
+            return SimpleDateFormat(format, Locale.US)
+        }
+
+        fun getStandardDateFormat(): SimpleDateFormat {
+            val format = "dd/MM/yy"
+            return SimpleDateFormat(format, Locale.US)
+        }
+
+        fun getCompactDateFormat(): SimpleDateFormat {
+            val format = "dd/MM"
+            return SimpleDateFormat(format, Locale.US)
+        }
+
+        fun timestampToHourMinute(time: Long): String {
+            return getHourMinuteFormat().format(Date(time))
+        }
+
+        fun dateToString(date: Date?): String {
+            return dateToString(date, false)
+        }
+
+        fun dateToString(
+                date: Date?,
+                compactFormat: Boolean
+        ): String {
+            if(date == null)
+                return ""
+            return if (compactFormat) getCompactDateFormat()
+                    .format(date) else getStandardDateFormat()
+                    .format(date)
+        }
+
+        fun timestampToString(time: Long): String? {
+            return timestampToString(time, false)
+        }
+
+        fun timestampToString(
+                time: Long,
+                compactFormat: Boolean
+        ): String? {
+            val date = Date(time)
+            return if (compactFormat) dateToString(date, true) else dateToString(date)
+        }
+
+        fun formatFlightDuration(time: Long): String? {
+            var time = time
+            if (time < 1) return ""
+            time /= 60
+            val hour = time / 60
+            val minute = time % 60
+            val duration = StringBuilder()
+            return if (hour > 0) {
+                duration.append(hour).append("h")
+                if (minute < 10) {
+                    duration.append("0").append(minute).toString()
+                } else duration.append(minute).toString()
+            } else {
+                if (minute < 10) {
+                    duration.append("0").append(minute).append("min").toString()
+                } else duration.append(minute).append("min").toString()
+            }
         }
     }
 }
