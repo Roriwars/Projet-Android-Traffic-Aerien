@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_flight_list.*
 import kotlinx.android.synthetic.main.fragment_flight_list.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -44,9 +45,15 @@ class FlightListFramgent : Fragment(), FlightListRecyclerAdapter.OnItemClickList
         viewModel = ViewModelProvider(requireActivity()).get(FlightListViewModel::class.java)
         viewModel.flightListLiveData.observe(this, androidx.lifecycle.Observer{
             if (it == null || it.isEmpty()) {
-                //DISPLAY ERROR
+                //do something
             } else {
                 val adapter = FlightListRecyclerAdapter()
+                val flightListFinal = mutableListOf<FlightModel>()
+                /*it.forEach {
+                    if (it.estArrivalAirport != null && it.estDepartureAirport != null) {
+                        flightListFinal.add(it)
+                    }
+                }*/
                 adapter.flightList = it
                 adapter.onItemClickListener = this
                 recyclerView.adapter = adapter
@@ -63,16 +70,14 @@ class FlightListFramgent : Fragment(), FlightListRecyclerAdapter.OnItemClickList
             }
         })
 
-
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_flight_list, container, false)
     }
 
-    override fun onItemClicked(flightName: String) {
+    override fun onItemClicked(flight: FlightModel) {
         //DO SOMETHING WHEN CLICKING ON THE FLIGHT NAME
-        Log.d("ViewClicked", flightName)
-        viewModel.updateSelectedFlightName(flightName)
+        Log.d("ViewClicked", flight.toString())
+        viewModel.updateSelectedFlightName(flight)
     }
 
     companion object {
