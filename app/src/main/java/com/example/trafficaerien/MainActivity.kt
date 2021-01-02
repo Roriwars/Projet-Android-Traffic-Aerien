@@ -60,10 +60,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         searchButton.setOnClickListener {
-            if(viewModel.getBeginDateLiveData().value?.compareTo(viewModel.getEndDateLiveData().value) ==1 || viewModel.getBeginDateLiveData().value?.compareTo(viewModel.getEndDateLiveData().value)==0) {
+            if(viewModel.getBeginDateLiveData().value?.compareTo(viewModel.getEndDateLiveData().value) ==1
+                    || viewModel.getBeginDateLiveData().value?.compareTo(viewModel.getEndDateLiveData().value) ==0
+                    || viewModel.getBeginDateLiveData().value?.compareTo(Calendar.getInstance())!! >= 0) {
                 val builder: AlertDialog.Builder = AlertDialog.Builder(this)
                 builder.setTitle("Entrées incorrectes")
-                builder.setMessage("Vous avez rentré une date incompatible\nRentrez un interval correct, de plus d'un jour et d'une semaine maximum")
+                builder.setMessage("Vous avez rentré une date incompatible\nRentrez un interval correct, de plus d'un jour et d'une semaine maximum\nSinon, vérifiez votre réseau")
                 builder.setIcon(R.drawable.sad)
 
                 builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which -> dialog.dismiss() })

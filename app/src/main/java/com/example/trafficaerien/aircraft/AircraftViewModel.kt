@@ -67,6 +67,7 @@ class AircraftViewModel : ViewModel(), RequestsManager.RequestListener {
                     }
                     if (result == null) {
                         isLoadingLiveData.value = false
+                        trackLiveData.value = null
                         Log.e("Request", "problem")
                     } else {
                         val trackList = Utils.getTrackAircraftFromString("$result")

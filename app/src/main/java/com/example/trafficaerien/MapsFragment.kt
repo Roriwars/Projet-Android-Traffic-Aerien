@@ -116,7 +116,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         //si on arrive à cette étape nous n'avons pas récupérer les informations nécessaires, on affiche quand même la map avec un marker montrant que les aéroports n'ont pas été trouvé
         mMap.addMarker(markerDefault)
         mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinateDefault))
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(mMap.maxZoomLevel))
     }
 
     //fonction permettant de styliser notre polyline (représentant notre trajet sur la map)
