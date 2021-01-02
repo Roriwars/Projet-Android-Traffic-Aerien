@@ -6,11 +6,16 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".FlightListActivity"
 android:id="@+id/activityContainer">
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.example.trafficaerien.FlightListFramgent"
+        android:id="@+id/fragmentFlightList" />
 
-<fragment
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:name="com.example.trafficaerien.FlightListFramgent"
-    android:id="@+id/fragmentFlightList" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center" />
 
 </FrameLayout>

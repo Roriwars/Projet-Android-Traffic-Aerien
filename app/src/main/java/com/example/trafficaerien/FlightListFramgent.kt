@@ -1,5 +1,7 @@
 package com.example.trafficaerien
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -45,28 +47,14 @@ class FlightListFramgent : Fragment(), FlightListRecyclerAdapter.OnItemClickList
         viewModel = ViewModelProvider(requireActivity()).get(FlightListViewModel::class.java)
         viewModel.flightListLiveData.observe(this, androidx.lifecycle.Observer{
             if (it == null || it.isEmpty()) {
-                //do something
+
             } else {
                 val adapter = FlightListRecyclerAdapter()
-                val flightListFinal = mutableListOf<FlightModel>()
-                /*it.forEach {
-                    if (it.estArrivalAirport != null && it.estDepartureAirport != null) {
-                        flightListFinal.add(it)
-                    }
-                }*/
                 adapter.flightList = it
                 adapter.onItemClickListener = this
                 recyclerView.adapter = adapter
                 recyclerView.layoutManager =
                     LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-            }
-        })
-
-        viewModel.isLoadingLiveData.observe(this, androidx.lifecycle.Observer{
-            if (it) {
-                progressBar.visibility = View.VISIBLE
-            } else {
-                progressBar.visibility = View.INVISIBLE
             }
         })
 
@@ -76,7 +64,6 @@ class FlightListFramgent : Fragment(), FlightListRecyclerAdapter.OnItemClickList
 
     override fun onItemClicked(flight: FlightModel) {
         //DO SOMETHING WHEN CLICKING ON THE FLIGHT NAME
-        Log.d("ViewClicked", flight.toString())
         viewModel.updateSelectedFlightName(flight)
     }
 
@@ -91,12 +78,6 @@ class FlightListFramgent : Fragment(), FlightListRecyclerAdapter.OnItemClickList
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FlightListFramgent().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        fun newInstance() = FlightListFramgent().apply {}
     }
 }

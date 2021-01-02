@@ -18,12 +18,11 @@ class FlightListViewModel : ViewModel(), RequestsManager.RequestListener {
 
     val flightListLiveData: MutableLiveData<List<FlightModel>> = MutableLiveData()
     val isLoadingLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val selectedFlightNameLiveData: MutableLiveData<String> = MutableLiveData()
+    private val selectedFlightLiveData: MutableLiveData<FlightModel> = MutableLiveData()
 
-    fun getSelectedFlightNameLiveData(): LiveData<String> {
-        return selectedFlightNameLiveData
+    fun getSelectedFlightNameLiveData(): LiveData<FlightModel> {
+        return selectedFlightLiveData
     }
-
 
     fun search(icao: String, isArrival: Boolean, begin: Long, end: Long) {
 
@@ -49,10 +48,9 @@ class FlightListViewModel : ViewModel(), RequestsManager.RequestListener {
             isLoadingLiveData.value = false
             if (result == null) {
                 Log.e("Request", "problem")
-
+                flightListLiveData.value = null
             } else {
                 val flightList = Utils.getFlightListFromString(result)
-                Log.d("models list", flightList.toString())
                 flightListLiveData.value = flightList
             }
 
@@ -78,7 +76,7 @@ class FlightListViewModel : ViewModel(), RequestsManager.RequestListener {
         TODO("Not yet implemented")
     }
 
-    fun updateSelectedFlightName(flightName: String) {
-        selectedFlightNameLiveData.value = flightName
+    fun updateSelectedFlightName(flight: FlightModel) {
+        selectedFlightLiveData.value = flight
     }
 }

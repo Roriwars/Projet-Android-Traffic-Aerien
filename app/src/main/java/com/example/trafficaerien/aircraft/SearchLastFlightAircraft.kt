@@ -1,4 +1,3 @@
 package com.example.trafficaerien.aircraft
 
-class SearchLastFlightAircraft {
-}
+data class SearchLastFlightAircraft  (val begin: Long, val end: Long, val icao: String)

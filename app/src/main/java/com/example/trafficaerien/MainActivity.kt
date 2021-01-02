@@ -1,6 +1,8 @@
 package com.example.trafficaerien
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.gson.JsonArray
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -57,7 +60,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         searchButton.setOnClickListener {
-            search()
+            if(viewModel.getBeginDateLiveData().value?.compareTo(viewModel.getEndDateLiveData().value) ==1 || viewModel.getBeginDateLiveData().value?.compareTo(viewModel.getEndDateLiveData().value)==0) {
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                builder.setTitle("Entrées incorrectes")
+                builder.setMessage("Vous avez rentré une date incompatible\nRentrez un interval correct, de plus d'un jour et d'une semaine maximum")
+                builder.setIcon(R.drawable.sad)
+
+                builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which -> dialog.dismiss() })
+
+                val alertDialog = builder.create()
+                alertDialog.show()
+            }else{
+                search()
+            }
         }
 
     }
@@ -106,8 +121,9 @@ class MainActivity : AppCompatActivity() {
         //Log.d("MainActivity", "icao = $icao, isArrival = $isArrival, begin = $begin, end = $end")
         //démarrer une activité et y passer les infos
 
-//après avor récupérer la data des vues, appeler une méthode process search
+        //après avor récupérer la data des vues, appeler une méthode process search
         val i = Intent(this, FlightListActivity::class.java)*/
+        Log.d("this",this.toString())
         val i = Intent(this,FlightListActivity::class.java)
         i.putExtra("begin", viewModel.getBeginDateLiveData().value!!.timeInMillis / 1000)
         i.putExtra("end", viewModel.getEndDateLiveData().value!!.timeInMillis / 1000)

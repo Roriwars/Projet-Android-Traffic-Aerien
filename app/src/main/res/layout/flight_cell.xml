@@ -44,9 +44,9 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_centerVertical="true"
-            android:layout_marginRight="7dp"
+            android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/flight_info_container"
-            android:background="#000000" />
+            android:src="@drawable/planetakeoff"/>
 
         <LinearLayout
             android:id="@+id/flight_info_container"
@@ -74,9 +74,10 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="20dp"
             android:layout_toRightOf="@id/flight_info_container"
-            android:background="#FF0000" />
+            android:src="@drawable/planelanding"/>
+
     </RelativeLayout>
 
     <LinearLayout
@@ -106,6 +107,5 @@
             android:text="hour" />
 
     </LinearLayout>
-
 
 </RelativeLayout>

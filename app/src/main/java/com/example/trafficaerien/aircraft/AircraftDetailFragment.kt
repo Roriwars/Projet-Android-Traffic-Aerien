@@ -1,15 +1,18 @@
-package com.example.trafficaerien
+package com.example.trafficaerien.aircraft
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.example.trafficaerien.aircraft.AircraftViewModel
-import com.example.trafficaerien.aircraft.TrackAircraftModel
+import com.example.trafficaerien.R
+import com.example.trafficaerien.Utils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -19,45 +22,78 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
  * Use the [AircraftDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+//fragment concernant l'affichage des détails de l'avion y compris sa position sur une map
 class AircraftDetailFragment : Fragment(), OnMapReadyCallback {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     private lateinit var mMap: GoogleMap
-    private lateinit var track : TrackAircraftModel
+    lateinit var track : TrackAircraftModel
     private lateinit var viewModel: AircraftViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+        arguments?.let {}
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        viewModel = ViewModelProvider(this).get(AircraftViewModel::class.java)
 
-        viewModel.getTrackLiveData().observe(this, androidx.lifecycle.Observer {
-            track=it
-            Log.d("trackLiveData",track.toString())
-            val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
-            mapFragment.getMapAsync(this)
+        viewModel = ViewModelProvider(requireActivity()).get(AircraftViewModel::class.java)
+
+        val fragment = inflater.inflate(R.layout.fragment_aircraft_detail, container, false)
+
+        viewModel.trackLiveData.observe(this, androidx.lifecycle.Observer {
+            track = it
+            mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
+            mapFragment?.getMapAsync(this)
+
+            if (track.state.isNotEmpty()) {
+                //si on reçoit de l'api toutes les informations nécessaires, elles sont associées à la vue
+                val state = track.state[0]
+                fragment.findViewById<TextView>(R.id.textDetailAircraft).text =
+                    "Détails de l'avion " + state.callsign
+                fragment.findViewById<TextView>(R.id.textVitesseAircraft).text = "Vitesse : ${(state.velocity*3.6).toInt()} km/h"
+                fragment.findViewById<TextView>(R.id.textAltitudeAircraft).text = "Altitude : " + state.geo_altitude + "m"
+                when {
+                       state.velocity == 0.0 -> {
+                           fragment.findViewById<TextView>(R.id.textEtatVolAircraft).text = "Etat : à l'arrêt"
+                       }
+                       state.vertical_rate > 0 -> {
+                           fragment.findViewById<TextView>(R.id.textEtatVolAircraft).text = "Etat : en monté"
+                       }
+                       state.vertical_rate < 0 -> {
+                           fragment.findViewById<TextView>(R.id.textEtatVolAircraft).text = "Etat : en descente"
+                       }
+                       else -> {
+                           fragment.findViewById<TextView>(R.id.textEtatVolAircraft).text = "Etat : en vol de croisière"
+                       }
+                }
+                fragment.findViewById<TextView>(R.id.textLastSeenAircraft).text = "Dernier contact le " + Utils.timestampToString((track.time).toLong()*1000,false)
+            }else{
+                //si l'api renvoie des informations vide alors on avertis l'utilisateur sur l'absence cette abscence
+                val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+                builder.setTitle("Détail de l'avion non récupérer")
+                builder.setMessage("Aucune réponse de l'API\nVeuillez recommencez plus tard ou avec des valeurs différentes")
+                builder.setIcon(R.drawable.sad)
+
+                builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which ->
+                    dialog.dismiss()
+                })
+
+                val alertDialog = builder.create()
+                alertDialog.show()
+            }
         })
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_aircraft_detail, container, false)
+        return fragment
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {
@@ -72,14 +108,12 @@ class AircraftDetailFragment : Fragment(), OnMapReadyCallback {
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.not_found))
 
         if (track.state.isNotEmpty()) {
-            var firstState = track.state[0]
+            val firstState = track.state[0]
             title = firstState.callsign
-            var snippet = "Dernière position connue de l'avion"
-            var lon = firstState.longitude
-            var lat = firstState.latitude
-            var rotation = firstState.true_track
-            Log.d("rotationTypeFloat?", "${rotation.toFloat()}")
-            Log.d("rotationTypeFloat?", "${rotation.toFloat()::class.simpleName}")
+            val snippet = "Dernière position connue de l'avion"
+            val lon = firstState.longitude
+            val lat = firstState.latitude
+            val rotation = firstState.true_track
             if (lon <= 180 && lat <= 90) {
                 if(track.state.count()>1) {
                     val polylineOptions: PolylineOptions = PolylineOptions()
@@ -107,26 +141,13 @@ class AircraftDetailFragment : Fragment(), OnMapReadyCallback {
         }
         mMap.addMarker(markerDefault)
         mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinateDefault))
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(mMap.maxZoomLevel))
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AircraftDetailFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-                AircraftDetailFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(ARG_PARAM1, param1)
-                        putString(ARG_PARAM2, param2)
-                    }
-                }
+        var mapFragment : SupportMapFragment?=null
+        val TAG: String = AircraftDetailFragment::class.java.simpleName
+        fun newInstance() = AircraftDetailFragment().apply {
+
+        }
     }
 }

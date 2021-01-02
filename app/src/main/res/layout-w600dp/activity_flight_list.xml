@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+    android:id="@+id/progressBar"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_gravity="center" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal" android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <fragment
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:name="com.example.trafficaerien.FlightListFramgent"
+            android:id="@+id/fragmentFlightList" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/detail_container"/>
+
+    </LinearLayout>
+</FrameLayout>
